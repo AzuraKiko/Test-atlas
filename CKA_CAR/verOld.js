@@ -9,32 +9,15 @@
 // car_investment_experience: ["ETF"],
 // // [ ETF, OPTS, FUT, DLC ]
 
- const axios = require('axios');
 
- const token = require('./token');
- 
+const axios = require('axios');
+
+
+const token = require('./token');
+
 // Dữ liệu mặc định cho yêu cầu
-const defaultRequestData = {
-    // education_qualification: ["A"],
-    // professional_qualification: ["CFAUSA"],
-    // cmfas_6a: true,
-    // cmfas_6a_score: [0],
-    // cmfas_8a: true,
-    // cmfas_8a_score: [0],
-    // cmfas_refused: true,
-    // cmfas_refused_times: 0,
-    // work_experience: ["DIP"],
-    // cka_investment_experience: ["CFD"],
-    // car_investment_experience: ["ETF"],
-    // cka_cfd: true,
-    // cka_cfd_scores: [0],
-    // cka_refused: true,
-    // cka_refused_times: 0,
-    // car_learning: true,
-    // car_learning_score: [0],
-    // car_refused: true,
-    // car_refused_times: 0
-};
+const defaultRequestData = {};
+
 
 // Danh sách các test case
 const testCases = [
@@ -148,9 +131,11 @@ const testCases = [
     }
 ];
 
+
 async function runTestCases() {
     for (const testCase of testCases) {
         let requestData = { ...defaultRequestData };
+
 
         // Xóa các key cần bỏ
         if (testCase.omitKeys) {
@@ -158,6 +143,7 @@ async function runTestCases() {
                 delete requestData[key];
             });
         }
+
 
         // Thêm các trường bổ sung
         if (testCase.payload) {
@@ -172,6 +158,7 @@ async function runTestCases() {
                 }
             });
 
+
             const endTime = Date.now();
             const duration = (endTime - startTime) / 1000;
             console.log(`Duration: ${duration} seconds`); // Sửa đổi ở đây
@@ -181,10 +168,16 @@ async function runTestCases() {
             console.log('Response Status:', response.status);
             console.log('Response Data:', response.data);
 
+            const expectedResponse = {
+                data: {
+                    processing: true
+                },
+                statusCode: 200
+            };
             // Kiểm tra mã trạng thái phản hồi và dữ liệu trả về
             if (
                 response.status === testCase.expectedStatusCode &&
-                JSON.stringify(response.data) === JSON.stringify(testCase.expectedResponse)
+                JSON.stringify(response.data) === JSON.stringify(expectedResponse)
             ) {
                 console.log(`${testCase.description}: Passed`);
             } else {
@@ -199,10 +192,12 @@ async function runTestCases() {
             console.log(`Test Case: ${testCase.description}`);
             console.log('Request Data:', requestData);
 
+
             if (error.response) {
                 // Log response details in case of an error
                 console.log('Response Status:', error.response.status);
                 console.log('Response Data:', error.response.data);
+
 
                 if (error.response.status === 400 && error.response.data.error === 100007) {
                     console.log(`Token has expired. Please refresh the token.`);
@@ -219,9 +214,11 @@ async function runTestCases() {
             }
         }
 
+
         console.log(''); // Add an empty line for better readability between test cases
     }
 }
+
 
 console.log(`Running ${testCases.length} test cases...`);
 runTestCases();

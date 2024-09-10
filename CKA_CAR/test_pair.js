@@ -1,9 +1,13 @@
 const axios = require('axios');
-const token = require('./token');
+const token = require('./CKA_CAR/token');
+const partyId = "114100";
 
 const sixtyDaysAgo = Math.floor(Date.now() / 1000) - (60 * 24 * 60 * 60);
 
 const tokenCallback = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwYXJ0bmVyLWNnc2lAbm92dXMtZmludGVjaC5jb20iLCJzdWIiOiJDR1MiLCJ0eXBlIjoiRVdFIiwiZXhwIjoxNzUzNzgzMTc5LCJpYXQiOjE3MDI5NTkyMDR9.ogfC4jje99zvi0pHNOjPkVBZU8HwmFcsdZGD5giGqYWmht4kO7bh6Jpz3DgP3uLMHvDQnuCVEVor_o8FcQ-np4qjfhmpiHYjv3bN9RzaomN9kzq--SctBbTbuFiLRJR0QPE_oUdRSALtTzWs3TradxZecvHH6oTDQhFqwJ1SHEtY2McwlCyehiEVB9BqchSQ6JGGT8nDcGo7em6YcJgbPjWBTjs0XfDgI3ZZ_rPWiCVjhtvVNHHOjSQJ-r2HrsjTIpOZ-JwFvUHnULYzE6Db6Gt1acneGydeg1nR1ooMfPE4LlDPV7vdvm5DcQfBnuwi3KaOehn9nK_FUgL1GcI0yw";
+
+const RequestUid = 'abc123456789' + new Date().getHours()+ new Date().getMinutes();
+
 
 // Default request data
 const defaultRequestData = {};
@@ -17,10 +21,11 @@ const testCases = [
         expectedError: null,
         expectedErrorCode: null,
         callbackData: {
-            party_id: "113900",
+            request_uid: RequestUid,
+            party_id: partyId,
             risk_preference: "string",
             client_grouping: "string",
-            car: {
+            CAR: {
                 status: true,
                 car_expiry_date: sixtyDaysAgo // 60 days ago
             }
@@ -33,10 +38,11 @@ const testCases = [
         expectedError: null,
         expectedErrorCode: null,
         callbackData: {
-            party_id: "113900",
+            request_uid: RequestUid,
+            party_id: partyId,
             risk_preference: "string",
             client_grouping: "string",
-            cka: {
+            CKA: {
                 status: true,
                 cka_cfd_expiry_date: sixtyDaysAgo // 60 days ago
             }
@@ -44,27 +50,38 @@ const testCases = [
     }
 ];
 
-async function callCallbackAPI(requestUid, callbackData) {
+async function callCallbackAPI(callbackData) {
     try {
-        const response = await axios.post('https://atlas-dev-api.equix.app/v1/external/cka-car/callback', {
-            ...callbackData,
-            request_uid: requestUid,
-        }, {
+        const requestDataCallback = {
+            ...callbackData
+        };
+
+        console.log('Callback Request Data:', JSON.stringify(requestDataCallback, null, 2));
+
+        const response = await axios.post('https://atlas-dev-api.equix.app/v1/external/cka-car/callback', requestDataCallback, {
             headers: {
                 'accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${tokenCallback}`
             }
         });
+
+        console.log('Callback Response Status:', response.status);
+        console.log('Callback Response Data:', JSON.stringify(response.data, null, 2));
+
         return response;
     } catch (error) {
         if (error.response) {
+            console.log('Callback Error Response Status:', error.response.status);
+            console.log('Callback Error Response Data:', JSON.stringify(error.response.data, null, 2));
             return error.response;
         } else {
+            console.log('Callback Error:', error.message);
             throw error;
         }
     }
 }
+
 
 async function callTradingProfileAPI() {
     try {
@@ -107,11 +124,12 @@ async function runTestCases() {
             const duration = (endTime - startTime) / 1000;
             console.log(`Time taken for API request: ${duration} seconds`);
 
-            // If the main API request is successful, capture the request_uid
-            const requestUid = response.data.request_uid;
+
+            // Log callback request data
+            console.log('Callback Request Data:', JSON.stringify(testCase.callbackData, null, 2));
 
             // Call the callback API with the corresponding callbackData
-            callbackResponse = await callCallbackAPI(requestUid, testCase.callbackData);
+            callbackResponse = await callCallbackAPI(testCase.callbackData);
 
             // Gọi thêm API trading-profile để kiểm tra trạng thái
             const tradingProfileData = await callTradingProfileAPI();
@@ -128,10 +146,9 @@ async function runTestCases() {
                 if (error.response.status === 400 && error.response.data.error === 100007) {
                     console.log(`Token has expired. Please refresh the token.`);
                 }
-                
-                // Call the callback API even if the main API fails
-                const requestUid = error.response.data.request_uid || 'defaultRequestUid';
-                callbackResponse = await callCallbackAPI(requestUid, testCase.callbackData);
+
+                // Log callback request data even in case of error
+                console.log('Callback Request Data:', JSON.stringify(testCase.callbackData, null, 2));
 
                 // Gọi thêm API trading-profile để kiểm tra trạng thái
                 const tradingProfileData = await callTradingProfileAPI();
