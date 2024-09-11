@@ -46,32 +46,38 @@ async function processXmlResponse(xmlData) {
 
         const dataRows = resultOutput[0].DataRows;
         if (!dataRows || dataRows.length === 0) throw new Error('DataRows not found in XML');
-       
+
         const dataRow = dataRows[0].DataRow;
         if (!dataRow) throw new Error('DataRow not found in XML');
 
-        console.log('Data Row:', dataRow);
+        // console.log('Data Row:', dataRow);
 
-        // Filter and process the data
+        // get all data no match with 1
         const filteredDataRows = dataRow.filter(row => {
-            const securityCodeMatch = row.SecurityCode[0] === SECURITY_CODE;
+            const secuityrCodeMatch = row.SecurityCode[0] === SECURITY_CODE;
             const exchangeMatch = row.Exchange[0] === EXCHANGE;
             const curryCodeMatch = row.TradingCurrencyCode[0] === CURRENCY;
             const intervalTypeMatch = row.FinancialDataPeriodTypeNumber[0] === FINANCIAL_DATA_PERIOD_TYPE_NUMBER.toString();
+
             const templateId = row.FinancialDataTemplateId[0] !== '1';
-            return securityCodeMatch && exchangeMatch && intervalTypeMatch && curryCodeMatch && templateId;
+
+            return secuityrCodeMatch && exchangeMatch && intervalTypeMatch && curryCodeMatch && templateId;
         });
 
+        // get all data match with 1
         const filteredDataRows1 = dataRow.filter(row => {
             const securityCodeMatch = row.SecurityCode[0] === SECURITY_CODE;
             const exchangeMatch = row.Exchange[0] === EXCHANGE;
             const curryCodeMatch = row.TradingCurrencyCode[0] === CURRENCY;
             const intervalTypeMatch = row.FinancialDataPeriodTypeNumber[0] === FINANCIAL_DATA_PERIOD_TYPE_NUMBER.toString();
+
             const templateId = row.FinancialDataTemplateId[0] === '1';
+
             return securityCodeMatch && exchangeMatch && intervalTypeMatch && curryCodeMatch && templateId;
         });
 
-        if (filteredDataRows.length > 0 || filteredDataRows1.lengh >0) {
+
+        if (filteredDataRows.length > 0 || filteredDataRows1.length > 0) {
             const uniqueDates = new Set();
             const uniqueCurrencies = new Set();
             const dateRanges = {};
@@ -83,15 +89,66 @@ async function processXmlResponse(xmlData) {
             let overallLatestDisclosureDate = "";
             let overallLatestDisclosureIndex = -1;
 
-            for (let i = 0; i < filteredDataRows.length; i++) {
-                const financialDataDate = filteredDataRows[i].FinancialDataDate[0] || "";
-                const disclosureDate = filteredDataRows[i].FinancialDataFilingDate[0] || "";
 
-                const currency = filteredDataRows[i].CurrencyCode[0] || "";
-                if (currency && !uniqueCurrencies.has(currency)) {
-                    uniqueCurrencies.add(currency);
-                    currencies.push(currency);
+            // // Right before the for loop
+            // console.log("filteredDataRows length:", filteredDataRows.length);
+            // console.log("filteredDataRows1 length:", filteredDataRows1.length);
+
+            if (filteredDataRows.length === 0 && filteredDataRows1.length === 0) {
+                console.log("Both filteredDataRows and filteredDataRows1 are empty. No data to process.");
+                return; // Exit the function if there's no data
+            }
+
+            // If we reach this point, at least one of the arrays has data
+            if (filteredDataRows.length > 0) {
+                // console.log("First item in filteredDataRows:", JSON.stringify(filteredDataRows[0], null, 2));
+            } else {
+                console.log("filteredDataRows is empty");
+            }
+
+            if (filteredDataRows1.length > 0) {
+                // console.log("First item in filteredDataRows1:", JSON.stringify(filteredDataRows1[0], null, 2));
+            } else {
+                console.log("filteredDataRows1 is empty");
+            }
+
+            // Now, let's modify the for loop to handle potential empty arrays
+            for (let i = 0; i < Math.max(filteredDataRows.length, filteredDataRows1.length); i++) {
+                // console.log(`Processing iteration ${i}`);
+
+                let financialDataDate = "";
+                let disclosureDate = "";
+                let currency = "";
+
+                if (i < filteredDataRows.length) {
+                    financialDataDate = filteredDataRows[i].FinancialDataDate[0] || "";
+                    disclosureDate = filteredDataRows[i].FinancialDataFilingDate[0] || "";
+                    currency = filteredDataRows[i].CurrencyCode[0] || "";
+                    // Cập nhật currency nếu không tồn tại trước đó
+                    if (currency && !uniqueCurrencies.has(currency)) {
+                        uniqueCurrencies.add(currency);
+                        currencies.push(currency);
+                    }
                 }
+
+                // If there's no data in filteredDataRows, or data is incomplete, use data from filteredDataRows1
+                if (!financialDataDate || !disclosureDate || !currency) {
+                    if (i < filteredDataRows1.length) {
+                        financialDataDate = financialDataDate || filteredDataRows1[i].FinancialDataDate[0] || "";
+                        disclosureDate = disclosureDate || filteredDataRows1[i].FinancialDataFilingDate[0] || "";
+                        currency = currency || filteredDataRows1[i].CurrencyCode[0] || "";
+                        // Cập nhật currency nếu không tồn tại trước đó
+                        if (currency && !uniqueCurrencies.has(currency)) {
+                            uniqueCurrencies.add(currency);
+                            currencies.push(currency);
+                        }
+                    }
+                }
+
+                // console.log("Financial Data Date:", financialDataDate);
+                // console.log("Disclosure Date:", disclosureDate);
+                // console.log("Currency:", currency);
+                // console.log("---");
 
                 let startDate = "";
                 let endDate = "";
@@ -212,7 +269,7 @@ async function processXmlResponse(xmlData) {
                 latestEndDates,
                 currencies,
                 latestDisclosureDates,
-                endDateQuarters: latest6Quarters
+                endDateQuarters: latestQuarters
             }, null, 2));
         } else {
             console.error('No matching data rows found in XML response');
@@ -225,53 +282,3 @@ async function processXmlResponse(xmlData) {
 }
 
 module.exports = processXmlResponse;
-
-
-// if (filteredDataRows.length > 0 || filteredDataRows1.length > 0) {
-//     const uniqueDates = new Set();
-//     const uniqueCurrencies = new Set();
-//     const dateRanges = {};
-//     let startDates = [];
-//     let endDates = [];
-//     let currencies = [];
-//     let disclosureDates = [];
-//     let endDateQuarters = [];
-//     let overallLatestDisclosureDate = "";
-//     let overallLatestDisclosureIndex = -1;
-
-//     // Loop over filteredDataRows first
-//     for (let i = 0; i < filteredDataRows.length; i++) {
-//         let financialDataDate = filteredDataRows[i].FinancialDataDate[0] || "";
-//         let disclosureDate = filteredDataRows[i].FinancialDataFilingDate[0] || "";
-
-//         let currency = filteredDataRows[i].CurrencyCode[0] || "";
-//         if (currency && !uniqueCurrencies.has(currency)) {
-//             uniqueCurrencies.add(currency);
-//             currencies.push(currency);
-//         }
-
-//         // Nếu không có data, sử dụng dữ liệu từ filteredDataRows1
-//         if (!financialDataDate || !disclosureDate || !currency) {
-//             for (let j = 0; j < filteredDataRows1.length; j++) {
-//                 financialDataDate = financialDataDate || filteredDataRows1[j].FinancialDataDate[0] || "";
-//                 disclosureDate = disclosureDate || filteredDataRows1[j].FinancialDataFilingDate[0] || "";
-//                 currency = currency || filteredDataRows1[j].CurrencyCode[0] || "";
-                
-//                 // Cập nhật currency nếu không tồn tại trước đó
-//                 if (currency && !uniqueCurrencies.has(currency)) {
-//                     uniqueCurrencies.add(currency);
-//                     currencies.push(currency);
-//                 }
-//             }
-//         }
-
-//         // Xử lý các giá trị khác nếu cần
-//         if (financialDataDate) {
-//             // Ví dụ: xử lý financialDataDate
-//         }
-//         if (disclosureDate) {
-//             // Ví dụ: xử lý disclosureDate
-//         }
-//     }
-// }
-
