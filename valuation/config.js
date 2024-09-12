@@ -1,10 +1,12 @@
-// config.js
+const getIRESSSessionKey = require('./sessionkey');
+
 module.exports = {
     SOAP_URL: 'https://webservicestest.iress.com.sg/v4/soap.aspx',
-    session_key: '005631FF-B0DE-4CDB-BF9B-A6290AF32EE2-68CAB560-00C8-001E-000F-0017@IDSA01',
-    SECURITY_CODE: 'T82U',
-    EXCHANGE: 'SGX',
+    session_key: async () => await getIRESSSessionKey(),  // Gọi hàm async để lấy session key
+    SECURITY_CODE: 'APP',
+    EXCHANGE: 'NAS',
     FINANCIAL_DATA_PERIOD_TYPE_NUMBER: 2,
-    CURRENCY: 'SGD'  // Add this line
+    CURRENCY: 'USD',  
+    PERIOD_TYPE: 'QUARTERLY'
 };
 

@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const token = require('../global/token');
-const { SECURITY_CODE, EXCHANGE, PERIOD_TYPE } = require('./config');
+const { EXCHANGE, MARKET_FILTER, SORT_TYPE } = require('./config');
 
 const fetchData = async (symbol, periodType, numberOfYears) => {
     const baseUrl = 'https://atlas-dev-api.equix.app/v1/symbol/fundamental/indicators';

@@ -253,23 +253,23 @@ async function processXmlResponse(xmlData) {
                 return result;
             }
 
-            const latestQuarters = getLatestQuarters(endDateQuarters, 20);
-            const latestStartDates = getLatestDate(startDates, 20);
-            const latestEndDates = getLatestDate(endDates, 20);
-            const latestDisclosureDates = getLatestDatesByIndex(disclosureDates, 20);
+            const Quarters = getLatestQuarters(endDateQuarters, 20);
+            const StartDates = getLatestDate(startDates, 20);
+            const EndDates = getLatestDate(endDates, 20);
+            const DisclosureDates = getLatestDatesByIndex(disclosureDates, 20);
 
-            console.log('IressStartDates', latestStartDates);
-            console.log('IressEndDates', latestEndDates);
+            console.log('IressStartDates', StartDates);
+            console.log('IressEndDates', EndDates);
             console.log('IressCurrencies', currencies);
-            console.log('IressDisclosureDates', latestDisclosureDates);
-            console.log('EndDateQuarters', JSON.stringify(latestQuarters));
+            console.log('IressDisclosureDates', DisclosureDates);
+            console.log('EndDateQuarters', JSON.stringify(Quarters));
 
             fs.writeFileSync('iressData.json', JSON.stringify({
-                latestStartDates,
-                latestEndDates,
+                StartDates,
+                EndDates,
                 currencies,
-                latestDisclosureDates,
-                endDateQuarters: latestQuarters
+                DisclosureDates,
+                endDateQuarters: Quarters
             }, null, 2));
         } else {
             console.error('No matching data rows found in XML response');

@@ -11,7 +11,7 @@
 
 const axios = require('axios');
 
-const token = require('./CKA_CAR/token');
+const token = require('./token');
 //  function generateRequestUid() {
 //     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 //     let result = '';

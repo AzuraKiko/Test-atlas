@@ -1,5 +1,5 @@
 const axios = require('axios');
-const token = require('./CKA_CAR/token');
+const token = require('./token');
 const partyId = "114100";
 
 const sixtyDaysAgo = Math.floor(Date.now() / 1000) - (60 * 24 * 60 * 60);
