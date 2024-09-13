@@ -1,0 +1,2 @@
+const sessionKey = '24DAAF6C-BDE1-4637-8E11-9F3F541B5D9F-68F16414-00C8-001E-000F-0017@IDSA01';
+module.exports = sessionKey;

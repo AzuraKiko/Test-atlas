@@ -1,5 +1,7 @@
 const axios = require('axios');
 const xml2js = require('xml2js');
+const path = require('path');
+const fs = require('fs');
 
 // Hàm gửi yêu cầu SOAP và lấy IRESSSessionKey
 async function getIRESSSessionKey() {
@@ -18,7 +20,7 @@ async function getIRESSSessionKey() {
               <ns0:PagingDirection>0</ns0:PagingDirection>
             </ns0:Header>
             <ns0:Parameters>
-              <ns0:UserName>sso.test3</ns0:UserName>
+              <ns0:UserName>sso.test2</ns0:UserName>
               <ns0:CompanyName>CGSSIT</ns0:CompanyName>
               <ns0:Password>Password1</ns0:Password>
               <ns0:ApplicationID>postman</ns0:ApplicationID>
@@ -68,9 +70,26 @@ async function getIRESSSessionKey() {
   }
 }
 
-// Gọi hàm và lấy session key
-getIRESSSessionKey().then((key) => {
-  console.log('Session Key:', key);
-});
+async function updateSessionFile(newKey) {
+  const filePath = path.resolve(__dirname, 'sessionkey.js');
+  const content = `const sessionKey = '${newKey}';\nmodule.exports = sessionKey;\n`;
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log('Session key updated in file: sessionkey.js');
+}
 
-module.exports = getIRESSSessionKey;
+// Main execution
+(async () => {
+  try {
+    const key = await getIRESSSessionKey();
+    if (key) {
+      console.log('Session Key:', key);
+      await updateSessionFile(key);
+    } else {
+      console.log('Failed to retrieve session key');
+    }
+  } catch (error) {
+    console.error('Error in main execution:', error);
+  }
+})();
+
+

@@ -52,16 +52,18 @@ async function processXmlResponse(xmlData) {
 
 
         // Extract relevant fields from the data row
-        const symbol_code = dataRow.map(row => row.SecurityCode);
-        const movement = dataRow.map(row => row.MovementPoints);
-        const movement_percentage = dataRow.map(row => row.MovementPercent);
-        const total_volume = dataRow.map(row => row.TotalVolume);
+        const symbol_codes = dataRow.length > 0 ? dataRow.map(row => row.SecurityCode?.[0] || null).filter(Boolean) : [];
+        const company_names = dataRow.length > 0 ? dataRow.map(row => row.SecurityDescription?.[0] || null).filter(Boolean) : [];
+        const movements = dataRow.length > 0 ? dataRow.map(row => row.MovementPoints?.[0] || null).filter(Boolean) : [];
+        const movement_percentages = dataRow.length > 0 ? dataRow.map(row => row.MovementPercent?.[0] || null).filter(Boolean) : [];
+        const total_volumes = dataRow.length > 0 ? dataRow.map(row => row.TotalVolume?.[0] || null).filter(Boolean) : [];
 
        const extractedData = {
-           symbol_code,
-           movement,
-           movement_percentage,
-           total_volume
+           symbol_codes,
+           company_names,
+           movements,
+           movement_percentages,
+           total_volumes
        };
 
        // Ghi dữ liệu tạm thời vào tệp JSON mỗi lần xử lý
