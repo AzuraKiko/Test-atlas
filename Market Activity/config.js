@@ -5,16 +5,16 @@ module.exports = {
     session_key: sessionKey,
     EXCHANGE: {
         SGX: 'SGX',
-        HKE: 'HKE',
-        KLS: 'KLS',
-        IDX: 'IDX',
-        AME: 'AME',
-        NAS: 'NAS',
-        NYS: 'NYS',
-        ASX: 'ASX',
-        SHG: 'SHG',
-        SHE: 'SHE',
-        BKK: 'BKK'
+        // HKE: 'HKE',
+        // KLS: 'KLS',
+        // IDX: 'IDX',
+        // AME: 'AME',
+        // NAS: 'NAS',
+        // NYS: 'NYS',
+        // ASX: 'ASX',
+        // SHG: 'SHG',
+        // SHE: 'SHE',
+        // BKK: 'BKK'
     },
     MARKET_FILTER: {
         TOP: 'TOP',

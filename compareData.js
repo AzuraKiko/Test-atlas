@@ -36,7 +36,18 @@ const compareData = () => {
         console.log(`\nComparing data for: ${key}`);
 
         // Compare result object
-        const resultKeys = ['symbol_codes'];
+        // const resultKeys = [
+        //     'symbol_codes',
+        //     'company_names',
+        //     'movements',
+        //     'movement_percentages',
+        //     'total_volumes'
+        //   ];
+
+          const resultKeys = [
+            'symbol_codes'
+          ];
+          
         resultKeys.forEach(resultKey => {
             if (eql(atlasItem.result[resultKey], iressItem.result[resultKey])) {
                 console.log(`result.${resultKey} matches.`);

@@ -20,7 +20,7 @@ async function getIRESSSessionKey() {
               <ns0:PagingDirection>0</ns0:PagingDirection>
             </ns0:Header>
             <ns0:Parameters>
-              <ns0:UserName>sso.test2</ns0:UserName>
+              <ns0:UserName>sso.test3</ns0:UserName>
               <ns0:CompanyName>CGSSIT</ns0:CompanyName>
               <ns0:Password>Password1</ns0:Password>
               <ns0:ApplicationID>postman</ns0:ApplicationID>
